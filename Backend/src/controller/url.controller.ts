@@ -28,7 +28,7 @@ export const redirectToOriginal = async(req : Request , res :Response )=>{
             console.log("Received short code:", code); // Debug log
             const url = await redirectService(code, req);
 
-            return res.redirect(301 , url.originalUrl);
+            return res.redirect(302 , url.originalUrl);
       } catch (error : any) {
             res.status(404).json({message : error.message || "Something went wrong"});
       }

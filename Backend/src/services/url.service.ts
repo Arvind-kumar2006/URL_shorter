@@ -67,6 +67,23 @@ export const redirectService = async (shortCode : string , req : Request) => {
             }
       }).catch(console.error);
 
+      const ipAddress = req.ip ?? "Unknown";
+
+      try {
+        await prisma.click.create({
+          data: {
+            urlId: url.id,
+            ipAddress: ipAddress,
+            userAgent: req.headers["user-agent"] || "",
+            referrer: req.headers.referer || "direct",
+            deviceType: "desktop"
+          }
+        });
+        console.log("Click created for URL ID:", url.id);
+      } catch (error) {
+        console.error("Error creating click:", error);
+      }
+
       return url;
 }
 
