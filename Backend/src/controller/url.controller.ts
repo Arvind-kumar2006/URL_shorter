@@ -1,8 +1,7 @@
 import { Request , Response } from "express";
 import {shortenSchema} from "../validators/url.schema";
 import {createShortUrlService} from "../services/url.service";
-import {redirectService} from "../services/url.service";
-
+import {redirectService , listLinksService} from "../services/url.service";
 
 
 
@@ -38,7 +37,21 @@ export const redirectToOriginal = async(req : Request , res :Response )=>{
 }
 
 export const listLinks = async (req : Request , res : Response)=>{
-      res.json({message : "List of all links"});
+      try {
+            const page = Number(req.query.page ) || 1;
+            const limit = Number(req.query.limit) || 20;
+
+            const sort = req.query.sort ==="clicks" ? "clickCount" : "createdAt";
+
+            // Call the service to get the list of links
+            const result = await listLinksService({page , limit , sort });
+          return res.status(200).json(result);
+
+      } catch (error : any) {
+            return res.status(500).json({
+      message: error.message,
+    });
+}
 }
 
 export const deactivateLink = async (req : Request , res : Response) => {

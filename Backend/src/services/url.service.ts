@@ -1,3 +1,4 @@
+import { link } from "node:fs";
 import prisma from "../lib/prisma";
 import { Request } from 'express'; 
 type Input = {
@@ -67,4 +68,42 @@ export const redirectService = async (shortCode : string , req : Request) => {
       }).catch(console.error);
 
       return url;
+}
+
+type Intput = {
+      page : number ,
+      limit : number , 
+      sort : "createdAt" | "clickCount" ,
+}
+
+export const listLinksService = async(input : Intput)=>{
+       const {page , limit , sort } = input;
+      
+       const skip = ((page)-1) * limit;
+
+       const [links , total ] = await Promise.all([
+            prisma.url.findMany({
+                  skip : skip , 
+                  take : limit ,
+                  orderBy : {
+                     [sort] : "desc"
+                  },
+                  select : {
+                        id : true , 
+                        shortCode : true , 
+                        originalUrl : true ,
+                        clickCount : true , 
+                        createdAt : true , 
+                        expiresAt : true , 
+                        isActive : true
+                  }
+            }),
+            prisma.url.count()
+       ])
+       return {
+            data : links , 
+            pagination : {
+                  total , page , limit , totalPages : Math.ceil(total/limit)
+            }
+       }
 }
