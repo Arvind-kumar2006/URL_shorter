@@ -17,7 +17,7 @@ services:
     image: postgres:16
     container_name: url_shortener_postgres
     ports:
-      - "5432:5432"
+      - "5433:5432"
     environment:
       POSTGRES_USER: arvind
       POSTGRES_PASSWORD: secret123
