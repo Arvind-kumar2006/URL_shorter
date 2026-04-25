@@ -1,24 +1,28 @@
 import { Request , Response , NextFunction} from "express";
-import {shortenSchema} from "../validators/url.schema";
 import {createShortUrlService} from "../services/url.service";
 import {redirectService , listLinksService , deactivateLinkService} from "../services/url.service";
 
 
-
+import { generateQRCode } from "../utils/qr";
 
 export const createShortUrl = async (req : Request , res : Response , next : NextFunction) => {
       try {
-            const validateData = shortenSchema.parse(req.body);
-            const result = await createShortUrlService(validateData);
+            
+            const result = await createShortUrlService(req.body);
+
+            const shortUrl =`${process.env.BASE_URL}/${result.shortCode}`;
+            const qrCode = await generateQRCode(shortUrl);
 
             res.status(201).json({
                   shortCode : result.shortCode,
                   shortenSchema : `${req.protocol}://${req.get('host')}/${result.shortCode}`,
                   originalUrl : result.originalUrl,
                   expiresAt : result.expiresAt,
-                  createdAt : result.createdAt
+                  createdAt : result.createdAt,
+                  qrCode : qrCode
             })
       }catch (error : any) {
+              console.error(error);
             next(error);
       }
 }

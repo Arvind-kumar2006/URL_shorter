@@ -6,7 +6,7 @@ import AppError from "../utils/AppError";
 
 type Input = {
       url : string , 
-      customcode ? : string,
+      customCode ? : string,
       expiresIn ? : number 
 }
 
@@ -20,9 +20,9 @@ function generateCode(length = 6): string{
 }
 
 export const createShortUrlService = async (input : Input)=>{
-      const {url , customcode , expiresIn} = input;
+      const {url , customCode , expiresIn} = input;
       
-      let shortCode = customcode || generateCode();
+      let shortCode = customCode || generateCode();
       
       // Check if the shortcode already exists
       const existing = await prisma.url.findUnique({
@@ -48,14 +48,19 @@ export const redirectService = async (
 ) => {
   const cacheKey = `url:${shortCode}`;
 
-  const cached = await redis.get(cacheKey);
+  let cached  = null;
 
-  if (cached) {
-  console.log("CACHE HIT");
-}
-else {
-  console.log("CACHE MISS");
-}
+   if (process.env.NODE_ENV !== "test") {
+    cached = await redis.get(cacheKey);
+
+  }
+
+//   if (cached) {
+//   console.log("CACHE HIT");
+// }
+// else {
+//   console.log("CACHE MISS");
+// }
 
   if (cached) {
     const url = JSON.parse(cached);
@@ -70,7 +75,7 @@ else {
   });
 
   if (!url) {
-    throw new AppError("Short URL not found", 404);
+      throw new AppError("Short URL not found", 404);
   }
 
   if (!url.isActive) {
@@ -81,13 +86,16 @@ else {
       throw new AppError("This link has expired", 410);
   }
 
+  if (process.env.NODE_ENV !== "test") {
   await redis.setEx(
     cacheKey,
     3600,
     JSON.stringify(url)
   );
+}
 
-  logClick(url.id, req);
+  logClick(url.id, req)
+  .catch(console.error);
 
   return url;
 };

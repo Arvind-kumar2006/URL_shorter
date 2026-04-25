@@ -31,13 +31,13 @@ model Url{
 
 model Click{
   id Int @id @default(autoincrement())
-  urlId Int 
-  clickAt DateTime @default(now())
-  ipAddress String @db.VarChar(45)
+  urlId Int  @map("url_id")
+  clickAt DateTime @default(now()) @map("click_at")
+  ipAddress String @db.VarChar(45) @map("ip_address")
   userAgent String ? 
   referrer String ? 
   country String ? @db.VarChar(64)
-  deviceType String ? @db.VarChar(20)
+  deviceType String ? @db.VarChar(20) @map("device_type")
 
   url Url @relation(fields: [urlId] , references: [id] , onDelete: Cascade)
 

@@ -1,76 +1,151 @@
 import prisma from "../lib/prisma";
+import AppError from "../utils/AppError";
 
+export const getAnalyticsService = async (
+  shortCode: string
+) => {
+  const url = await prisma.url.findUnique({
+    where: { shortCode },
+  });
 
-export const getAnalyticsService = async (shortCode : string) => {
-      const url = await prisma.url.findUnique({
-            where : {shortCode}
-      })
+  if (!url) {
+    throw new AppError(
+      "Short URL not found",
+      404
+    );
+  }
 
-      if(!url){
-            const err : any = new Error("Short URL not found");
-            err.status = 404;
-            throw err;
-      }
-      const clicks = await prisma.click.findMany({
-            where : {
-                  urlId : url.id
-            },
-            orderBy : {
-                  clickAt : "asc",
-            }
-      })
-      console.log(`Clicks found for URL ID ${url.id}:`, clicks.length);
-      const totalClicks = clicks.length;
-      const uniqueClicks = new Set(
-            clicks.map((item)=> item.ipAddress)
-      ).size;
+  // =========================
+  // Total Clicks
+  // =========================
+  const totalClicks =
+    await prisma.click.count({
+      where: {
+        urlId: url.id,
+      },
+    });
 
-      const clickByTimeMap : Record<string , number> = {}
+  // =========================
+  // Unique Clicks
+  // =========================
+  const uniqueResult =
+    await prisma.$queryRaw<
+      { count: bigint }[]
+    >`
+    SELECT COUNT(DISTINCT ip_address) AS count
+    FROM clicks
+    WHERE url_id = ${url.id}
+  `;
 
-      for(const click of clicks){
-            const day = click.clickAt.toISOString().split("T")[0];
-            clickByTimeMap[day] = (clickByTimeMap[day] || 0) + 1;
-      }
-      const clickByTime = Object.entries(
-            clickByTimeMap 
-      ).map(([period , count]) => ({period , clicks : count}))
+  const uniqueClicks = Number(
+    uniqueResult[0]?.count || 0
+  );
 
-      const refereMap : Record<string , number> = {}
-      
-      for (const click of clicks) {
-            const ref = click.referrer || "direct";
-            refereMap[ref] = (refereMap[ref] || 0) + 1;
-      }
-      const topReferers = Object.entries(refereMap)
-            .map(([referer, count]) => ({ referer, clicks:count }))
-            .sort((a, b) => b.clicks - a.clicks)
-            .slice(0, 5);
+  // =========================
+  // Clicks By Time
+  // =========================
+  const clicksByTime =
+    await prisma.$queryRaw<
+      {
+        period: Date;
+        clicks: bigint;
+      }[]
+    >`
+    SELECT
+      DATE(click_at) AS period,
+      COUNT(*) AS clicks
+    FROM clicks
+    WHERE url_id = ${url.id}
+    GROUP BY DATE(click_at)
+    ORDER BY period ASC
+  `;
 
-            const deviceBreakdown = {
-                  mobile : 0,
-                  desktop : 0,
-                  tablet : 0,
-            }
+  // =========================
+  // Top Referrers
+  // =========================
+  const topReferrers =
+    await prisma.$queryRaw<
+      {
+        referrer: string | null;
+        clicks: bigint;
+      }[]
+    >`
+    SELECT
+      COALESCE(referrer, 'direct') AS referrer,
+      COUNT(*) AS clicks
+    FROM clicks
+    WHERE url_id = ${url.id}
+    GROUP BY referrer
+    ORDER BY clicks DESC
+    LIMIT 5
+  `;
 
-            for(const click of clicks){
-                  const device = click.deviceType as keyof typeof deviceBreakdown;
+  // =========================
+  // Device Breakdown
+  // =========================
+  const deviceRows =
+    await prisma.$queryRaw<
+      {
+        device: string | null;
+        clicks: bigint;
+      }[]
+    >`
+    SELECT
+      COALESCE(device_type, 'unknown') AS device,
+      COUNT(*) AS clicks
+    FROM clicks
+    WHERE url_id = ${url.id}
+    GROUP BY device_type
+  `;
 
-                  if(device && deviceBreakdown[device] !== undefined){
-                        deviceBreakdown[device]++;
-                  }
+  const deviceBreakdown = {
+    mobile: 0,
+    desktop: 0,
+    tablet: 0,
+  };
 
-            }
-            return {
-                  shortCode : url.shortCode,
-                  originalUrl : url.originalUrl,
-                  totalClicks,
-                  uniqueClicks,
-                  clicksByTime: clickByTime,
-                  topReferers,
-                  deviceBreakdown,
-                  createdAt : url.createdAt,
-                  expiresAt : url.expiresAt
-            }
+  for (const row of deviceRows) {
+    const key =
+      row.device as keyof typeof deviceBreakdown;
 
-      
-}
+    if (key in deviceBreakdown) {
+      deviceBreakdown[key] =
+        Number(row.clicks);
+    }
+  }
+
+  // =========================
+  // Final Response
+  // =========================
+  return {
+    shortCode: url.shortCode,
+    originalUrl: url.originalUrl,
+    totalClicks,
+    uniqueClicks,
+    createdAt: url.createdAt,
+    expiresAt: url.expiresAt,
+
+    clicksByTime:
+      clicksByTime.map((item) => ({
+        period:
+          item.period
+            .toISOString()
+            .split("T")[0],
+        clicks: Number(
+          item.clicks
+        ),
+      })),
+
+    topReferrers:
+      topReferrers.map((item) => ({
+        referrer:
+          item.referrer ||
+          "direct",
+        clicks: Number(
+          item.clicks
+        ),
+      })),
+
+    deviceBreakdown,
+  };
+};

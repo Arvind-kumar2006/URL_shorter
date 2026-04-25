@@ -1,27 +1,12 @@
-import express from "express";
-import {config} from "dotenv";
-import urlRoutes from "./routes/url.routes";
+import { config } from "dotenv";
 config();
-import { redirectToOriginal } from "./controller/url.controller";
-import type { Request, Response } from "express";
-import healthRoutes from "./routes/health.routes";
-import analyticsRoutes from "./routes/analytics.routes";
-import { errorHandler } from "./middleware/errorHandler";
 
-const app = express();
+import app from "./app";
 
-app.use(express.json());
+const PORT = process.env.PORT || 3001;
 
-app.use(errorHandler);
-app.use("/api/v1/", healthRoutes);
-app.use("/api/v1/", analyticsRoutes);
-
-app.use("/api/v1" , urlRoutes);
-app.get("/" , (req : Request , res : Response) => {
-    res.send("Hello World");
-})
-app.get("/:shortCode", redirectToOriginal);
-console.log(process.env.DATABASE_URL);
-app.listen(3001 , () => {
-    console.log("Server is running on port 3001");
-})
+app.listen(PORT, () => {
+  console.log(
+    `Server running on port ${PORT}`
+  );
+});

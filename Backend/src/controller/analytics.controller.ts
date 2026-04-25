@@ -6,7 +6,7 @@ type Params = {
       shortCode : string
 }
 
-export const getAnalytics = async (req : Request<Params> , res : Response) => {
+export const getAnalytics = async (req : Request<Params> , res : Response, next: Function) => {
       try {
             const {shortCode } = req.params;
 
@@ -15,8 +15,7 @@ export const getAnalytics = async (req : Request<Params> , res : Response) => {
             return res.status(200).json(result);
 
       } catch (error : any) {
-            return res.status(error.status || 500).json({
-                  message : error.message
-            })
+            
+            next(error);
       }
 }
