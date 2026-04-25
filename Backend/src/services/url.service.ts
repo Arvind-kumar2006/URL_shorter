@@ -107,3 +107,22 @@ export const listLinksService = async(input : Intput)=>{
             }
        }
 }
+
+export const deactivateLinkService = async (shortCode : string) => {
+      const existing = await prisma.url.findUnique({
+            where : {shortCode : shortCode}
+      })
+
+      if(!existing){
+            const err : any = new Error("Short URL not found");
+            err.status = 404;
+            throw err;
+      }
+      const updated = await prisma.url.update({
+            where : {shortCode},
+            data : {
+                  isActive : false
+            }
+      })
+      return updated;
+}

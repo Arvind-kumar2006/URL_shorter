@@ -1,7 +1,7 @@
 import { Request , Response } from "express";
 import {shortenSchema} from "../validators/url.schema";
 import {createShortUrlService} from "../services/url.service";
-import {redirectService , listLinksService} from "../services/url.service";
+import {redirectService , listLinksService , deactivateLinkService} from "../services/url.service";
 
 
 
@@ -20,9 +20,7 @@ export const createShortUrl = async (req : Request , res : Response) => {
       }catch (error : any) {
             res.status(400).json({message : error.message || "Something went wrong"});
       }
-
 }
-
 export const redirectToOriginal = async(req : Request , res :Response )=>{
       try {
             const {shortCode} = req.params;
@@ -55,5 +53,20 @@ export const listLinks = async (req : Request , res : Response)=>{
 }
 
 export const deactivateLink = async (req : Request , res : Response) => {
-      res.json({message : "Link deactivated successfully"});
+      try {
+            const {shortCode} = req.params;
+            const code = Array.isArray(shortCode) ? shortCode[0] : shortCode;
+            const result = await deactivateLinkService(code);
+            return res.status(200).json({
+
+      message: "Link deactivated successfully",
+
+      data: result,
+
+    });
+      } catch (error :any ) {
+          return res.status(error.statusCode || 500).json({
+            message: error.message,
+    });  
+ }
 }
