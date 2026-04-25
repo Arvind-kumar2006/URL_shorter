@@ -1,0 +1,37 @@
+version: "3.9"
+
+services:
+  backend:
+    build: ./backend
+    container_name: url_shortener_backend
+    ports:
+      - "5555:5555"
+    depends_on:
+      - postgres
+      - redis
+    env_file:
+      - ./backend/.env
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16
+    container_name: url_shortener_postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: arvind
+      POSTGRES_PASSWORD: secret123
+      POSTGRES_DB: url_shortener
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: url_shortener_redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+volumes:
+  pgdata:

@@ -1,0 +1,9 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const analytics_controller_1 = require("../controller/analytics.controller");
+const router = (0, express_1.Router)();
+const validateRequest_1 = require("../middleware/validateRequest");
+const url_schema_1 = require("../validators/url.schema");
+router.get("/analytics/:shortCode", (0, validateRequest_1.validateRequest)(url_schema_1.analyticsSchema), analytics_controller_1.getAnalytics);
+exports.default = router;
