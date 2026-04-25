@@ -1,11 +1,12 @@
-import { Request , Response } from "express";
+import { Request , Response , NextFunction} from "express";
 import {shortenSchema} from "../validators/url.schema";
 import {createShortUrlService} from "../services/url.service";
 import {redirectService , listLinksService , deactivateLinkService} from "../services/url.service";
 
 
 
-export const createShortUrl = async (req : Request , res : Response) => {
+
+export const createShortUrl = async (req : Request , res : Response , next : NextFunction) => {
       try {
             const validateData = shortenSchema.parse(req.body);
             const result = await createShortUrlService(validateData);
@@ -18,10 +19,10 @@ export const createShortUrl = async (req : Request , res : Response) => {
                   createdAt : result.createdAt
             })
       }catch (error : any) {
-            res.status(400).json({message : error.message || "Something went wrong"});
+            next(error);
       }
 }
-export const redirectToOriginal = async(req : Request , res :Response )=>{
+export const redirectToOriginal = async(req : Request , res :Response , next : NextFunction)=>{
       try {
             const {shortCode} = req.params;
             const code = Array.isArray(shortCode) ? shortCode[0] : shortCode;
@@ -30,11 +31,11 @@ export const redirectToOriginal = async(req : Request , res :Response )=>{
 
             return res.redirect(302 , url.originalUrl);
       } catch (error : any) {
-            res.status(404).json({message : error.message || "Something went wrong"});
+            next(error);
       }
 }
 
-export const listLinks = async (req : Request , res : Response)=>{
+export const listLinks = async (req : Request , res : Response , next : NextFunction)=>{
       try {
             const page = Number(req.query.page ) || 1;
             const limit = Number(req.query.limit) || 20;
@@ -46,13 +47,11 @@ export const listLinks = async (req : Request , res : Response)=>{
           return res.status(200).json(result);
 
       } catch (error : any) {
-            return res.status(500).json({
-      message: error.message,
-    });
-}
+            next(error);
+      }
 }
 
-export const deactivateLink = async (req : Request , res : Response) => {
+export const deactivateLink = async (req : Request , res : Response , next : NextFunction) => {
       try {
             const {shortCode} = req.params;
             const code = Array.isArray(shortCode) ? shortCode[0] : shortCode;
@@ -65,8 +64,6 @@ export const deactivateLink = async (req : Request , res : Response) => {
 
     });
       } catch (error :any ) {
-          return res.status(error.statusCode || 500).json({
-            message: error.message,
-    });  
+          next(error);
  }
 }

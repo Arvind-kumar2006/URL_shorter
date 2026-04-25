@@ -6,10 +6,13 @@ import { redirectToOriginal } from "./controller/url.controller";
 import type { Request, Response } from "express";
 import healthRoutes from "./routes/health.routes";
 import analyticsRoutes from "./routes/analytics.routes";
+import { errorHandler } from "./middleware/errorHandler";
 
 const app = express();
 
 app.use(express.json());
+
+app.use(errorHandler);
 app.use("/api/v1/", healthRoutes);
 app.use("/api/v1/", analyticsRoutes);
 

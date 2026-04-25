@@ -1,9 +1,8 @@
-import { ur } from 'zod/v4/locales';
-import { link } from "node:fs";
+
 import prisma from "../lib/prisma";
 import { Request } from 'express'; 
 import redis from "../lib/redis";
-import { log } from "node:console";
+import AppError from "../utils/AppError";
 
 type Input = {
       url : string , 
@@ -30,7 +29,7 @@ export const createShortUrlService = async (input : Input)=>{
             where : {shortCode : shortCode}
       })
       if(existing){
-            throw new Error('Custom code already exists. Please choose a different one.');
+            throw new AppError("Custom code already in use, please choose another one", 400);
       }
       const created = await prisma.url.create({
             data : {
@@ -71,21 +70,15 @@ else {
   });
 
   if (!url) {
-    const err: any = new Error("Short URL not found");
-    err.status = 404;
-    throw err;
+    throw new AppError("Short URL not found", 404);
   }
 
   if (!url.isActive) {
-    const err: any = new Error("This link has been deactivated");
-    err.status = 410;
-    throw err;
+    throw new AppError("This link has been deactivated", 410);
   }
 
   if (url.expiresAt && new Date() > url.expiresAt) {
-    const err: any = new Error("This link has expired");
-    err.status = 410;
-    throw err;
+      throw new AppError("This link has expired", 410);
   }
 
   await redis.setEx(
@@ -145,9 +138,7 @@ export const deactivateLinkService = async (shortCode : string) => {
       })
 
       if(!existing){
-            const err : any = new Error("Short URL not found");
-            err.status = 404;
-            throw err;
+            throw new AppError("Short URL not found", 404);
       }
       const updated = await prisma.url.update({
             where : {shortCode},
