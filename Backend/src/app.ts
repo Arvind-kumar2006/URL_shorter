@@ -9,7 +9,8 @@ const app = express();
 
 
 app.use(express.json());
-app.use(cors());
+app.use(cors({ origin: true }))
+app.options('*', cors())
 
 app.use("/api/v1", healthRoutes);
 app.use("/api/v1", analyticsRoutes);
