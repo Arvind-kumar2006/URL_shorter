@@ -2,9 +2,8 @@ import axios from "axios";
 
 const api = axios.create({
   baseURL:
-    "https://url-shortener-api-k6gj.onrender.com/api/v1",
+    "/api/v1",
 });
-
 api.interceptors.request.use((config) => {
   const token =
     localStorage.getItem("token");
