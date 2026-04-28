@@ -48,7 +48,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.NullsOrder = exports.QueryMode = exports.SortOrder = exports.ClickScalarFieldEnum = exports.UrlScalarFieldEnum = exports.TransactionIsolationLevel = exports.ModelName = exports.AnyNull = exports.JsonNull = exports.DbNull = exports.NullTypes = exports.Decimal = void 0;
+exports.NullsOrder = exports.QueryMode = exports.SortOrder = exports.ClickScalarFieldEnum = exports.UrlScalarFieldEnum = exports.UserScalarFieldEnum = exports.TransactionIsolationLevel = exports.ModelName = exports.AnyNull = exports.JsonNull = exports.DbNull = exports.NullTypes = exports.Decimal = void 0;
 const runtime = __importStar(require("@prisma/client/runtime/index-browser"));
 exports.Decimal = runtime.Decimal;
 exports.NullTypes = {
@@ -75,6 +75,7 @@ exports.JsonNull = runtime.JsonNull;
  */
 exports.AnyNull = runtime.AnyNull;
 exports.ModelName = {
+    User: 'User',
     Url: 'Url',
     Click: 'Click'
 };
@@ -87,6 +88,12 @@ exports.TransactionIsolationLevel = runtime.makeStrictEnum({
     RepeatableRead: 'RepeatableRead',
     Serializable: 'Serializable'
 });
+exports.UserScalarFieldEnum = {
+    id: 'id',
+    email: 'email',
+    password: 'password',
+    createdAt: 'createdAt'
+};
 exports.UrlScalarFieldEnum = {
     id: 'id',
     shortCode: 'shortCode',
@@ -95,7 +102,8 @@ exports.UrlScalarFieldEnum = {
     createdAt: 'createdAt',
     expiresAt: 'expiresAt',
     isActive: 'isActive',
-    clickCount: 'clickCount'
+    clickCount: 'clickCount',
+    userId: 'userId'
 };
 exports.ClickScalarFieldEnum = {
     id: 'id',

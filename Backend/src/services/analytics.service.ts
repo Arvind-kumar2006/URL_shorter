@@ -126,7 +126,7 @@ export const getAnalyticsService = async (
     expiresAt: url.expiresAt,
 
     clicksByTime:
-      clicksByTime.map((item) => ({
+      clicksByTime.map((item: { period: Date; clicks: bigint }) => ({
         period:
           item.period
             .toISOString()
@@ -137,7 +137,7 @@ export const getAnalyticsService = async (
       })),
 
     topReferrers:
-      topReferrers.map((item) => ({
+      topReferrers.map((item: { referrer: string | null; clicks: bigint }) => ({
         referrer:
           item.referrer ||
           "direct",
