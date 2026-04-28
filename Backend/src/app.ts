@@ -4,12 +4,13 @@ import healthRoutes from "./routes/health.routes";
 import analyticsRoutes from "./routes/analytics.routes";
 import { redirectToOriginal } from "./controller/url.controller";
 import { errorHandler } from "./middleware/errorHandler";
-
+import cors from "cors";
 import authRoutes from "./routes/auth.routes";
 const app = express();
 
 
 app.use(express.json());
+app.use(cors());
 
 app.use("/api/v1", authRoutes);
 app.use("/api/v1", healthRoutes);
