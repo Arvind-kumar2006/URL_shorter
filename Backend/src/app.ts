@@ -9,7 +9,7 @@ import authRoutes from "./routes/auth.routes";
 const app = express();
 
 
-app.use(express.json());
+
 app.use(
   cors({
     origin: [
@@ -32,7 +32,7 @@ app.use(
     credentials: true
   })
 );
-
+app.use(express.json());
 app.use("/api/v1", authRoutes);
 app.use("/api/v1", healthRoutes);
 app.use("/api/v1", analyticsRoutes);
