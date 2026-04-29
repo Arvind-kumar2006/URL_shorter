@@ -32,7 +32,6 @@ app.use(
     credentials: true
   })
 );
-app.options("*", cors());
 
 app.use("/api/v1", authRoutes);
 app.use("/api/v1", healthRoutes);
