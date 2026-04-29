@@ -8,7 +8,7 @@
 
 | | URL |
 |---|---|
-| Frontend | https://your-frontend-link.vercel.app |
+| Frontend | https://url-shortner-frontend-xh83.vercel.app/ |
 | Backend API | https://url-shortener-api-k6gj.onrender.com |
 
 ---
