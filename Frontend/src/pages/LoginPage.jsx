@@ -34,9 +34,7 @@ export default function LoginPage() {
         form
       );
 
-     console.log(res.data);
     login(res.data);
-    console.log("after login");
       navigate("/dashboard");
     } catch {
       setError("Invalid email or password");
