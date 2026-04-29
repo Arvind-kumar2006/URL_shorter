@@ -230,4 +230,4 @@ snip/
 
 **Arvind Kumar**
 
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-yourprofile-0A66C2?style=flat-square&logo=linkedin)](https://www.linkedin.com/in/arvind2006/)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-myprofile-0A66C2?style=flat-square&logo=linkedin)](https://www.linkedin.com/in/arvind2006/)
