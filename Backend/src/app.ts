@@ -10,7 +10,29 @@ const app = express();
 
 
 app.use(express.json());
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "https://url-shorter-snowy.vercel.app"
+
+    ],
+    methods: [
+      "GET",
+      "POST",
+      "PUT",
+      "PATCH",
+      "DELETE",
+      "OPTIONS"
+    ],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization"
+    ],
+    credentials: true
+  })
+);
+app.options("*", cors());
 
 app.use("/api/v1", authRoutes);
 app.use("/api/v1", healthRoutes);
