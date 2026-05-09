@@ -6,6 +6,7 @@ import { redirectToOriginal } from "./controller/url.controller";
 import { errorHandler } from "./middleware/errorHandler";
 import cors from "cors";
 import authRoutes from "./routes/auth.routes";
+
 const app = express();
 
 const allowedOrigins = [

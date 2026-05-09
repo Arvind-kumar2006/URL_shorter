@@ -35,7 +35,6 @@ export default function AnalyticsPage() {
       const payload =
         res.data.data || res.data;
 
-      console.log(payload);
 
       setData(payload);
     } catch (error) {

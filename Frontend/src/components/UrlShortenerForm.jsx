@@ -20,7 +20,7 @@ export default function UrlShortenerForm() {
         url,
       });
 
-      console.log(res.data);
+  
 
       setData(res.data);
       setUrl("");
