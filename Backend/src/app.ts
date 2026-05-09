@@ -9,8 +9,14 @@ import authRoutes from "./routes/auth.routes";
 
 const app = express();
 
+// Support comma-separated list: ALLOWED_ORIGINS=https://a.netlify.app,https://b.vercel.app
 const allowedOrigins = [
-  process.env.ALLOWED_ORIGIN || "https://url-shortner-frontend1-ij2y.vercel.app",
+  ...(process.env.ALLOWED_ORIGINS
+    ? process.env.ALLOWED_ORIGINS.split(",").map((o) => o.trim())
+    : [
+        "https://url-shortner-frontent.netlify.app",
+        "https://url-shortner-frontend1-ij2y.vercel.app",
+      ]),
   "http://localhost:5173",
   "http://localhost:3000",
 ];
